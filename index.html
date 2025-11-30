@@ -1,84 +1,80 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 
 <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Solar ROI Generator</title>
-    <style>
-        body {
-            font-family: Arial;
-            background: #f4f4f4;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 600px;
-            margin: auto;
-            padding: 20px;
-            background: #fff;
-            border-radius: 10px;
-        }
-
-        label {
-            display: block;
-            margin-top: 12px;
-            font-weight: bold;
-        }
-
-        input {
-            width: 100%;
-            padding: 10px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            margin-top: 5px;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            background: #1a73e8;
-            border: 0;
-            color: white;
-            font-size: 18px;
-            border-radius: 8px;
-            margin-top: 20px;
-            cursor: pointer;
-        }
-
-        #outputImage {
-            margin-top: 20px;
-            width: 100%;
-            border-radius: 10px;
-            display: none;
-        }
-    </style>
+    <link href="styles.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
+    <main class="card">
+        <h1>Solar ROI Report</h1>
 
-    <div class="container">
-        <h2>Solar ROI Picture Generator</h2>
+        <section class="inputs">
+            <label>Customer Name
+                <input id="name" placeholder="e.g. Kaviya" />
+            </label>
 
-        <label>User Name</label>
-        <input id="userName">
+            <label>Avg Bi-monthly EB Bill (₹)
+                <input id="bill" type="number" placeholder="e.g. 4000" />
+            </label>
 
-        <label>Average EB Bill (₹)</label>
-        <input id="avgBill" type="number">
+            <label>Solar System Cost (₹)
+                <input id="cost" type="number" placeholder="e.g. 200000" />
+            </label>
 
-        <label>Solar System Cost (₹)</label>
-        <input id="solarCost" type="number">
+            <label>Subsidy (₹)
+                <input id="subsidy" type="number" value="78000" />
+            </label>
 
-        <label>Subsidy (₹)</label>
-        <input id="subsidy" type="number" value="78000">
+            <label>EB Bill Increase
+                <select id="inflation">
+                    <option value="0.03">3% / year</option>
+                    <option value="0.035">3.5% / year</option>
+                    <option value="0.04" selected>4% / year</option>
+                </select>
+            </label>
 
-        <button onclick="generate()">Generate ROI Picture</button>
+            <div class="actions">
+                <button id="generate">Generate Report</button>
+                <button id="download" disabled>Download PNG</button>
+            </div>
+        </section>
 
-        <canvas id="canvas" width="1080" height="1350" style="display:none;"></canvas>
-        <img id="outputImage">
-    </div>
+        <section id="report" class="report" aria-hidden="true">
+            <div class="report-left">
+                <h2 id="reportTitle">Solar ROI Report</h2>
+                <p><strong>Name:</strong> <span id="rName"></span></p>
+                <p><strong>Avg EB Bill (bi-monthly):</strong> ₹<span id="rBill"></span></p>
+                <p><strong>Solar Cost:</strong> ₹<span id="rCost"></span></p>
+                <p><strong>Subsidy:</strong> ₹<span id="rSubsidy"></span></p>
+                <p><strong>Net Investment:</strong> ₹<span id="rNet"></span></p>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <h3 id="rBreak" class="accent-blue"></h3>
+
+                <h3 class="accent-green">Savings After Breakeven:</h3>
+                <p class="big-green">₹<span id="rProfit"></span></p>
+
+                <p class="muted">Assumed EB Bill Increase: <span id="rInflation"></span>/year</p>
+                <p class="muted">Solar Life: 25 years</p>
+            </div>
+
+            <div class="report-right">
+                <canvas id="savingsChart" width="700" height="420"></canvas>
+                <div class="summary-table">
+                    <div><strong>Yearly Savings (Year 1)</strong><span>₹<span id="rYear1"></span></span></div>
+                    <div><strong>Breakeven Year</strong><span id="rBreakYear"></span></div>
+                    <div><strong>Total 25-Year Savings</strong><span>₹<span id="rTotal25"></span></span></div>
+                    <div><strong>ROI (%)</strong><span id="rROI"></span></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
     <script src="script.js"></script>
-
 </body>
 
 </html>
