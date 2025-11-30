@@ -3,12 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Solar ROI Report Generator – v12</title>
-
-    <!-- ChartJS -->
+    <title>Solar ROI Generator — v13</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <!-- html2canvas + jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
@@ -29,8 +25,8 @@
             background: #fff;
             padding: 25px;
             border-radius: 14px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
             width: 360px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
         }
 
         .output-card {
@@ -38,7 +34,15 @@
             background: #fff;
             padding: 35px;
             border-radius: 16px;
+            position: relative;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .logo {
+            position: absolute;
+            top: 18px;
+            right: 20px;
+            width: 120px;
         }
 
         h2 {
@@ -48,10 +52,10 @@
         }
 
         label {
-            font-size: 14px;
-            font-weight: 600;
             margin-top: 12px;
             display: block;
+            font-size: 14px;
+            font-weight: 600;
         }
 
         input,
@@ -59,63 +63,65 @@
             width: 100%;
             padding: 10px;
             margin-top: 6px;
-            border-radius: 8px;
             border: 1px solid #d9d9d9;
-            font-size: 15px;
+            border-radius: 8px;
         }
 
         button {
             margin-top: 18px;
             padding: 12px 20px;
             border: none;
-            font-size: 15px;
             border-radius: 8px;
+            font-size: 15px;
             cursor: pointer;
+            width: 100%;
         }
 
         .generate-btn {
             background: #2563eb;
             color: white;
-            width: 100%;
         }
 
         .png-btn {
             background: #059669;
             color: white;
-            width: 100%;
-            margin-top: 10px;
         }
 
         .pdf-btn {
-            background: #7c3aed;
+            background: #d97706;
             color: white;
-            width: 100%;
             margin-top: 10px;
         }
 
         .highlight-box {
             background: #fff4cc;
-            padding: 20px;
-            border-radius: 12px;
-            margin-top: 20px;
+            padding: 22px;
+            border-radius: 14px;
+            margin-top: 25px;
         }
 
         .fin-title {
             font-size: 22px;
             font-weight: 800;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+        }
+
+        .fin-subtitle {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 18px;
+        }
+
+        .fin-label {
+            font-size: 14px;
+            font-weight: 700;
+            margin-top: 14px;
         }
 
         .fin-green {
             color: #0c8a25;
+            font-size: 24px;
             font-weight: 800;
-            font-size: 26px;
-        }
-
-        .fin-label {
-            font-size: 15px;
-            font-weight: 700;
-            margin-top: 14px;
         }
 
         .stats-box {
@@ -144,18 +150,17 @@
         }
 
         .footer-note {
+            margin-top: 20px;
             background: #e8fae8;
             padding: 15px;
             border-radius: 10px;
-            margin-top: 20px;
             font-size: 14px;
         }
 
-        .brand {
+        #roiChart {
             margin-top: 25px;
-            font-weight: 800;
-            font-size: 22px;
-            color: #2563eb;
+            height: 230px !important;
+            /* compact graph */
         }
     </style>
 </head>
@@ -163,7 +168,8 @@
 <body>
 
     <div class="container">
-        <!-- LEFT SIDEBAR -->
+
+        <!-- SIDEBAR -->
         <div class="card">
             <h3>Customer Inputs</h3>
 
@@ -176,8 +182,11 @@
             <label>Solar System Cost (₹)</label>
             <input id="costInput" type="number">
 
-            <label>kW (shown only)</label>
+            <label>kW (for display)</label>
             <input id="kwInput" type="number">
+
+            <label>Subsidy</label>
+            <input value="78000" disabled>
 
             <label>EB Bill Increase</label>
             <select id="increaseInput">
@@ -187,35 +196,32 @@
                 <option value="4">4%</option>
             </select>
 
-            <label style="margin-top:15px;">
-                <input type="checkbox" id="breakevenToggle"> Show Breakeven on card & PNG
-            </label>
+            <label><input type="checkbox" id="breakevenToggle"> Show Breakeven on card & PNG</label>
 
             <button class="generate-btn" onclick="generate()">Generate</button>
-            <button class="png-btn" onclick="savePNG()">Download PNG</button>
-            <button class="pdf-btn" onclick="savePDF()">Download PDF</button>
+            <button class="png-btn" onclick="downloadPNG()">Download PNG</button>
+            <button class="pdf-btn" onclick="downloadPDF()">Download PDF</button>
         </div>
 
         <!-- OUTPUT CARD -->
         <div class="output-card" id="cardArea">
 
+            <img src="scaler-solar.jpeg" class="logo">
+
             <h2>Solar ROI Report</h2>
-            <div id="preparedFor" style="color:#6b7280; margin-top:4px;"></div>
+            <div id="preparedFor" style="margin-top:4px; color:#6b7280;"></div>
 
             <p style="margin-top:20px; line-height:1.8;">
                 <b>Avg Bi-Monthly Bill:</b> <span id="outBill"></span><br>
                 <b>Solar Cost:</b> <span id="outCost"></span><br>
-                <b>Subsidy:</b> <span id="outSubsidy">₹78,000</span><br>
+                <b>Subsidy:</b> <span>₹78,000</span><br>
                 <b>kW:</b> <span id="outKw"></span><br>
                 <b>Net Investment:</b> <span id="outNet"></span>
             </p>
 
-            <!-- FINANCIAL OVERVIEW -->
             <div class="highlight-box">
                 <div class="fin-title">Financial Overview</div>
-
-                <div class="fin-label">Customer:</div>
-                <div class="fin-green" id="finCustomer"></div>
+                <div class="fin-subtitle" id="finCust"></div>
 
                 <div class="fin-label">Net Invested Amount:</div>
                 <div class="fin-green" id="finNet"></div>
@@ -226,10 +232,10 @@
                 <div class="fin-label">ROI (%):</div>
                 <div class="fin-green" id="finROI"></div>
 
-                <div id="finBreak" style="margin-top:12px; font-size:15px; font-weight:600;"></div>
+                <div id="finBreak" style="font-size:15px; font-weight:600; margin-top:10px;"></div>
             </div>
 
-            <canvas id="roiChart" style="margin-top:25px; height:260px !important;"></canvas>
+            <canvas id="roiChart"></canvas>
 
             <div class="stats-box">
                 <div class="stat">
@@ -244,17 +250,13 @@
 
             <div class="footer-note" id="footerNote"></div>
 
-            <div class="brand">Scaler Solar</div>
-
         </div>
     </div>
 
     <script>
         let chartInstance = null;
 
-        function formatINR(x) {
-            return "₹" + x.toLocaleString("en-IN");
-        }
+        function formatINR(x) { return "₹" + x.toLocaleString("en-IN"); }
 
         function generate() {
             const name = document.getElementById("nameInput").value.trim();
@@ -264,7 +266,7 @@
             const inc = Number(document.getElementById("increaseInput").value);
             const showBreak = document.getElementById("breakevenToggle").checked;
 
-            const subsidy = 78000;          // STATIC
+            const subsidy = 78000;
             const net = cost - subsidy;
             const yearlySaving = bill * 6;
 
@@ -279,27 +281,22 @@
                 if (!breakeven && cumulative >= net) breakeven = y;
             }
 
-            // BASIC TEXT OUTPUT
-            document.getElementById("preparedFor").innerHTML =
-                "Prepared for <b>" + name.toUpperCase() + "</b>";
-
-            document.getElementById("finCustomer").innerHTML = name.toUpperCase();
+            document.getElementById("preparedFor").innerHTML = "Prepared for <b>" + name.toUpperCase() + "</b>";
             document.getElementById("outBill").innerHTML = formatINR(bill);
             document.getElementById("outCost").innerHTML = formatINR(cost);
             document.getElementById("outKw").innerHTML = kw;
             document.getElementById("outNet").innerHTML = formatINR(net);
 
+            document.getElementById("finCust").innerHTML = "Customer: <b>" + name + "</b>";
             document.getElementById("finNet").innerHTML = formatINR(net);
             document.getElementById("finSavings").innerHTML = formatINR(Math.round(savings[24]));
             document.getElementById("finROI").innerHTML = ((savings[24] / net) * 100).toFixed(1) + "%";
 
             document.getElementById("year1").innerHTML = formatINR(yearlySaving);
 
-            // Breakeven visibility
             if (showBreak) {
                 document.getElementById("breakevenVal").innerHTML = breakeven;
-                document.getElementById("finBreak").innerHTML =
-                    "Estimated Breakeven: <b>" + breakeven + " years</b>";
+                document.getElementById("finBreak").innerHTML = "Breakeven in <b>" + breakeven + " years</b>";
             } else {
                 document.getElementById("breakevenVal").innerHTML = "—";
                 document.getElementById("finBreak").innerHTML = "";
@@ -308,9 +305,13 @@
             document.getElementById("footerNote").innerHTML =
                 `Includes <b>${inc}% annual EB bill increase</b>. Solar lifetime: 25 years`;
 
-            // CHART
             const ctx = document.getElementById("roiChart");
+
             if (chartInstance) chartInstance.destroy();
+
+            const breakLine = showBreak ?
+                [...Array(25)].map((_, i) => (i + 1 === breakeven ? savings[i] : null)) :
+                [...Array(25)].map(() => null);
 
             chartInstance = new Chart(ctx, {
                 type: "line",
@@ -320,60 +321,51 @@
                         {
                             label: "Savings",
                             data: savings,
-                            borderWidth: 3,
                             borderColor: "#0c8a25",
+                            borderWidth: 3,
                             backgroundColor: "rgba(12,138,37,0.12)",
-                            fill: true,
-                            tension: 0.25
+                            fill: true
                         },
-                        ...(showBreak ? [{
+                        {
                             label: "Breakeven",
-                            data: savings.map((v, i) => i + 1 === breakeven ? v : null),
+                            data: breakLine,
                             borderColor: "#2563eb",
                             borderWidth: 2,
+                            borderDash: [6, 6],
                             pointRadius: 6,
-                            borderDash: [0, 0],
                             pointBackgroundColor: "#2563eb"
-                        }] : [])
+                        }
                     ]
                 },
                 options: {
                     plugins: { legend: { display: false } },
                     scales: {
-                        y: { ticks: { callback: v => "₹" + v.toLocaleString("en-IN") } }
+                        y: { ticks: { callback: v => "₹" + v.toLocaleString("en-IN") } },
                     }
                 }
             });
         }
 
-        // ---------- EXPORT PNG ----------
-        function savePNG() {
-            const name = document.getElementById("nameInput").value.trim().toLowerCase() || "customer";
-            const fileName = `roi_${name}.png`;
-
-            html2canvas(document.getElementById("cardArea"), { scale: 3 })
-                .then(canvas => {
-                    let link = document.createElement("a");
-                    link.download = fileName;
-                    link.href = canvas.toDataURL();
-                    link.click();
-                });
+        function downloadPNG() {
+            const name = document.getElementById("nameInput").value || "customer";
+            html2canvas(document.getElementById("cardArea")).then(canvas => {
+                const link = document.createElement("a");
+                link.download = "roi_" + name + ".png";
+                link.href = canvas.toDataURL();
+                link.click();
+            });
         }
 
-        // ---------- EXPORT PDF ----------
-        function savePDF() {
-            const name = document.getElementById("nameInput").value.trim().toLowerCase() || "customer";
-            const fileName = `roi_${name}.pdf`;
-
-            html2canvas(document.getElementById("cardArea"), { scale: 3 })
-                .then(canvas => {
-                    const imgData = canvas.toDataURL("image/png");
-                    const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
-                    const w = 190;
-                    const h = (canvas.height * 190) / canvas.width;
-                    pdf.addImage(imgData, "PNG", 10, 10, w, h);
-                    pdf.save(fileName);
-                });
+        function downloadPDF() {
+            const name = document.getElementById("nameInput").value || "customer";
+            html2canvas(document.getElementById("cardArea")).then(canvas => {
+                const img = canvas.toDataURL("image/png");
+                const pdf = new jspdf.jsPDF("p", "mm", "a4");
+                const width = 190;
+                const height = canvas.height * (190 / canvas.width);
+                pdf.addImage(img, "PNG", 10, 10, width, height);
+                pdf.save("roi_" + name + ".pdf");
+            });
         }
     </script>
 
