@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Solar ROI Generator</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f4f4;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+        }
+
+        label {
+            display: block;
+            margin-top: 12px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            margin-top: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #1a73e8;
+            border: 0;
+            color: white;
+            font-size: 18px;
+            border-radius: 8px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+
+        #outputImage {
+            margin-top: 20px;
+            width: 100%;
+            border-radius: 10px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Solar ROI Picture Generator</h2>
+
+        <label>User Name</label>
+        <input id="userName">
+
+        <label>Average EB Bill (₹)</label>
+        <input id="avgBill" type="number">
+
+        <label>Solar System Cost (₹)</label>
+        <input id="solarCost" type="number">
+
+        <label>Subsidy (₹)</label>
+        <input id="subsidy" type="number" value="78000">
+
+        <button onclick="generate()">Generate ROI Picture</button>
+
+        <canvas id="canvas" width="1080" height="1350" style="display:none;"></canvas>
+        <img id="outputImage">
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+
+</body>
+
+</html>
