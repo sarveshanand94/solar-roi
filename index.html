@@ -6,23 +6,23 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Solar ROI — Card Generator</title>
 
-    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Chart.js v4 -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <!-- html2canvas for PNG export -->
+    <!-- html2canvas -->
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
     <style>
         :root {
-            --bg: #f2f5f8;
+            --bg: #f2f6f9;
             --card: #ffffff;
             --muted: #6b7280;
             --accent-green: #0b8457;
             --accent-blue: #1f6feb;
             --yellow: #fff4cc;
             --shadow: 0 14px 40px rgba(20, 20, 30, 0.08);
+            --radius: 14px;
         }
 
         * {
@@ -136,7 +136,7 @@
         /* card preview */
         .card {
             background: linear-gradient(180deg, #ffffff, #fbfeff);
-            border-radius: 14px;
+            border-radius: var(--radius);
             padding: 26px;
             position: relative;
             overflow: hidden
@@ -232,7 +232,6 @@
             color: #0b8457
         }
 
-        /* small helpers */
         .muted {
             color: var(--muted)
         }
@@ -250,7 +249,7 @@
         <div class="top">
             <div>
                 <div class="title">Solar ROI — Card Generator</div>
-                <div class="hint">Enter customer details, Generate, then Download PNG</div>
+                <div class="hint">Enter customer details, click Generate → then Download PNG</div>
             </div>
             <div class="muted small-muted">Scaler Solar</div>
         </div>
@@ -316,11 +315,18 @@
                         <div><strong>Net Investment:</strong> ₹<span id="p_net">—</span></div>
                     </div>
 
-                    <div id="breakevenBox" class="highlight" style="display:none">
+                    <!-- Financial Overview: ALWAYS visible -->
+                    <div id="financialOverview" class="highlight" aria-live="polite">
                         <div style="font-size:14px;color:#111;font-weight:700">Financial Overview</div>
                         <div style="margin-top:8px">
                             <div>Net Invested Amount: <span class="net">₹<span id="p_net_big">—</span></span></div>
-                            <div class="sub" id="p_breakeven_text" style="margin-top:6px">—</div>
+                            <!-- breakeven line - appears only when checkbox ON -->
+                            <div class="sub" id="p_breakeven_text" style="margin-top:6px">Estimated Breakeven Period:
+                                <strong id="p_breakeven_inline">—</strong>
+                            </div>
+                            <div style="margin-top:8px">Total 25-Year Savings: <strong>₹<span
+                                        id="p_total25_inline">—</span></strong></div>
+                            <div style="margin-top:4px">ROI: <strong><span id="p_roi_inline">—</span>%</strong></div>
                         </div>
                     </div>
 
@@ -358,29 +364,25 @@
     </div>
 
     <script>
-        /* ---------- Utilities ---------- */
+        /* utilities */
         function fmt(n) { return Number(n || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 }); }
 
-        /* ---------- Chart holder ---------- */
+        /* chart & plugin for breakeven vertical line */
         let chart = null;
-
-        /* Draw vertical breakeven marker plugin */
         const breakevenPlugin = {
             id: 'breakevenPlugin',
             afterDraw(chartInstance, args, options) {
-                const breakevenIndex = options.breakevenIndex;
-                const drawLine = options.show;
-                if (!drawLine || breakevenIndex == null) return;
-
+                const { show, index } = options || {};
+                if (!show || index == null) return;
                 const ctx = chartInstance.ctx;
                 const xScale = chartInstance.scales.x;
                 const yScale = chartInstance.scales.y;
-                const x = xScale.getPixelForValue(breakevenIndex);
+                const x = xScale.getPixelForValue(index);
                 ctx.save();
                 ctx.beginPath();
                 ctx.moveTo(x, yScale.top);
                 ctx.lineTo(x, yScale.bottom);
-                ctx.strokeStyle = 'rgba(47,84,255,0.9)';
+                ctx.strokeStyle = 'rgba(47,84,255,0.85)';
                 ctx.lineWidth = 2;
                 ctx.setLineDash([6, 6]);
                 ctx.stroke();
@@ -388,7 +390,6 @@
             }
         };
 
-        /* ---------- Main compute & render ---------- */
         function generate() {
             // inputs
             const name = (document.getElementById('in_name').value || 'Customer').trim();
@@ -404,12 +405,12 @@
                 return;
             }
 
-            // Calculations
+            // calculations
             const yearlyBill = bill * 6;
             const yearlySavingsYear1 = yearlyBill;
             const netInvestment = Math.max(0, cost - subsidy);
 
-            // cumulative for 25 years
+            // 25-year cumulative with inflation
             const years = 25;
             const cumulative = [];
             let cum = 0;
@@ -420,7 +421,7 @@
                 eb *= (1 + inflation);
             }
 
-            // find breakeven
+            // breakeven detection
             const breakevenEntry = cumulative.find(it => it.cumulative >= netInvestment);
             const breakevenYear = breakevenEntry ? breakevenEntry.year : null;
 
@@ -428,7 +429,7 @@
             const profitAfterBreakeven = Math.max(0, total25 - netInvestment);
             const roiPercent = netInvestment > 0 ? (profitAfterBreakeven / netInvestment) * 100 : 0;
 
-            // Fill preview
+            // Fill preview fields
             document.getElementById('p_name').textContent = name;
             document.getElementById('p_bill').textContent = fmt(bill);
             document.getElementById('p_cost').textContent = fmt(cost);
@@ -441,28 +442,29 @@
             document.getElementById('p_breakyear').textContent = breakevenYear ? breakevenYear : '—';
             document.getElementById('p_roi').textContent = roiPercent.toFixed(1);
 
-            // breakeven box toggle
-            document.getElementById('breakevenBox').style.display = showBreakeven ? 'block' : 'none';
-            const p_breakeven_text = document.getElementById('p_breakeven_text');
-            if (breakevenYear) {
-                p_breakeven_text.innerHTML = `Estimated Breakeven Period: <strong>${breakevenYear} year${breakevenYear > 1 ? 's' : ''}</strong>`;
+            // Financial overview ALWAYS visible: populate values
+            document.getElementById('p_total25_inline').textContent = fmt(total25);
+            document.getElementById('p_roi_inline').textContent = roiPercent.toFixed(1);
+
+            // Show/hide breakeven text inside financial overview
+            const breakevenText = document.getElementById('p_breakeven_inline');
+            if (showBreakeven && breakevenYear) {
+                breakevenText.textContent = `${breakevenYear} year${breakevenYear > 1 ? 's' : ''}`;
+            } else if (showBreakeven && !breakevenYear) {
+                breakevenText.textContent = 'No breakeven within 25 years';
             } else {
-                p_breakeven_text.textContent = 'No breakeven within 25 years';
+                // if showBreakeven = false, clear inline breakeven text but keep overview visible
+                breakevenText.textContent = '—';
             }
 
-            // Prepare chart data
+            // chart
             const labels = cumulative.map(c => `Y${c.year}`);
             const data = cumulative.map(c => c.cumulative);
 
             const ctx = document.getElementById('savingsChart').getContext('2d');
-
-            // destroy old chart if exists
             if (chart) { chart.destroy(); chart = null; }
 
-            // create chart with plugin passing breakeven index (0-based)
-            let breakevenIndex = null;
-            if (breakevenYear) breakevenIndex = breakevenYear - 1;
-
+            const breakevenIndex = breakevenYear ? (breakevenYear - 1) : null;
             chart = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -481,7 +483,7 @@
                 options: {
                     plugins: {
                         legend: { display: false },
-                        breakevenPlugin: { show: showBreakeven, breakevenIndex: breakevenIndex }
+                        breakevenPlugin: { show: showBreakeven, index: breakevenIndex }
                     },
                     scales: {
                         x: { display: true, title: { display: true, text: 'Years' } },
@@ -497,32 +499,25 @@
             document.getElementById('btn_download').disabled = false;
         }
 
-        /* ---------- PNG Export (html2canvas) ---------- */
+        /* PNG export: capture #capture with html2canvas at higher resolution */
         function downloadPNG() {
-            const captureEl = document.getElementById('capture');
-            // increase scale for higher resolution
-            html2canvas(captureEl, { scale: 2, useCORS: true, backgroundColor: '#ffffff' })
-                .then(canvas => {
-                    const link = document.createElement('a');
-                    const name = (document.getElementById('in_name').value || 'customer').replace(/\s+/g, '_');
-                    link.download = `Solar_ROI_${name}.png`;
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                })
-                .catch(err => {
-                    alert('Export failed: ' + (err.message || err));
-                });
+            const el = document.getElementById('capture');
+            html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#ffffff' }).then(canvas => {
+                const link = document.createElement('a');
+                const name = (document.getElementById('in_name').value || 'customer').replace(/\s+/g, '_');
+                link.download = `Solar_ROI_${name}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }).catch(err => {
+                alert('Export failed: ' + (err.message || err));
+            });
         }
 
-        /* ---------- Events ---------- */
+        /* events */
         document.getElementById('btn_generate').addEventListener('click', generate);
         document.getElementById('btn_download').addEventListener('click', downloadPNG);
-
-        // support pressing Enter on inputs to generate
         ['in_name', 'in_bill', 'in_cost'].forEach(id => {
-            document.getElementById(id).addEventListener('keyup', e => {
-                if (e.key === 'Enter') generate();
-            });
+            document.getElementById(id).addEventListener('keyup', e => { if (e.key === 'Enter') generate(); });
         });
     </script>
 </body>
