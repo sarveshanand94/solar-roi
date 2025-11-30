@@ -2,151 +2,138 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <title>Solar ROI Report Generator</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="UTF-8">
+    <title>Solar ROI Generator</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-
     <style>
         body {
-            font-family: Inter, Arial, sans-serif;
-            background: #f5f6f7;
-            padding: 20px;
+            font-family: Inter, sans-serif;
+            background: #f5f6f8;
+            margin: 0;
+            padding: 30px;
         }
 
         .container {
             display: flex;
-            gap: 25px;
+            gap: 30px;
         }
 
-        .panel {
-            background: white;
+        .card {
+            background: #fff;
             padding: 25px;
-            border-radius: 12px;
-            width: 340px;
-            height: fit-content;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 14px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            width: 360px;
         }
 
-        .input-group {
-            margin-bottom: 18px;
+        .output-card {
+            flex: 1;
+            background: #fff;
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        h2 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 800;
         }
 
         label {
-            display: block;
             font-size: 14px;
             font-weight: 600;
-            margin-bottom: 6px;
+            margin-top: 12px;
+            display: block;
         }
 
         input,
         select {
             width: 100%;
             padding: 10px;
-            font-size: 15px;
-            border: 1px solid #ddd;
+            margin-top: 6px;
             border-radius: 8px;
+            border: 1px solid #d9d9d9;
+            font-size: 15px;
         }
 
-        .checkbox-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        button {
+            margin-top: 18px;
+            padding: 12px 20px;
+            border: none;
+            font-size: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .generate-btn {
+            background: #2563eb;
+            color: #fff;
+            width: 100%;
+        }
+
+        .png-btn {
+            background: #059669;
+            color: #fff;
+            width: 100%;
             margin-top: 10px;
         }
 
-        .button {
-            padding: 10px 18px;
-            background: #2563eb;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-right: 10px;
-            font-size: 15px;
+        .section-header {
+            font-weight: 700;
+            margin-bottom: 6px;
         }
 
-        .button.grey {
-            background: #4b5563;
+        .highlight-box {
+            background: #fff4cc;
+            padding: 18px;
+            border-radius: 12px;
+            margin-top: 18px;
         }
 
-        /* ------------------ REPORT CARD ------------------ */
-        #card {
-            width: 860px;
-            background: white;
-            padding: 40px;
-            border-radius: 18px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.10);
-        }
-
-        h1 {
-            font-size: 34px;
+        .fin-green {
+            color: #0c8a25;
             font-weight: 800;
-            margin-bottom: 5px;
+            font-size: 26px;
         }
 
-        .top-right {
-            float: right;
+        .fin-label {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .stats-box {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat {
+            flex: 1;
+            background: #f8fafc;
+            padding: 18px;
+            border-radius: 12px;
+        }
+
+        .stat-title {
+            font-size: 14px;
             color: #555;
             font-weight: 600;
         }
 
-        .yellow-box {
-            background: #fef9c3;
-            padding: 22px;
-            border-radius: 10px;
-            margin-top: 20px;
-            margin-bottom: 25px;
-        }
-
-        .section-title {
-            font-weight: 700;
-            font-size: 16px;
-            margin-bottom: 10px;
-        }
-
-        .net-amount {
-            font-size: 28px;
-            font-weight: 800;
-            color: #047857;
-        }
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 18px;
-            margin-top: 20px;
-            margin-bottom: 20px;
-        }
-
-        .info-box {
-            background: #f9fafb;
-            border: 1px solid #ececec;
-            padding: 20px;
-            border-radius: 12px;
-        }
-
-        .info-title {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: #444;
-        }
-
-        .info-value {
+        .stat-value {
             font-size: 20px;
-            font-weight: 700;
+            font-weight: 800;
+            margin-top: 5px;
         }
 
-        .green-note {
-            margin-top: 10px;
-            padding: 18px;
-            background: #ecfdf5;
+        .footer-note {
+            background: #e8fae8;
+            padding: 15px;
             border-radius: 10px;
-            color: #065f46;
+            margin-top: 20px;
             font-size: 14px;
-            font-weight: 600;
         }
     </style>
 </head>
@@ -154,229 +141,179 @@
 <body>
 
     <div class="container">
-        <!-- ---------------- LEFT PANEL ---------------- -->
-        <div class="panel">
-            <div class="input-group">
-                <label>Customer Name</label>
-                <input id="name" placeholder="e.g., Kaviya" />
-            </div>
+        <!-- LEFT SIDEBAR -->
+        <div class="card">
+            <h3>Customer Inputs</h3>
 
-            <div class="input-group">
-                <label>Avg Bi-Monthly EB Bill (₹)</label>
-                <input id="bill" type="number" value="4000" />
-            </div>
+            <label>Customer Name</label>
+            <input id="nameInput">
 
-            <div class="input-group">
-                <label>Solar Cost (₹)</label>
-                <input id="cost" type="number" value="200000" />
-            </div>
+            <label>Avg Bi-Monthly EB Bill (₹)</label>
+            <input id="billInput" type="number">
 
-            <div class="input-group">
-                <label>kW (only shown)</label>
-                <input id="kw" type="number" value="3" />
-            </div>
+            <label>Solar System Cost (₹)</label>
+            <input id="costInput" type="number">
 
-            <div class="input-group">
-                <label>Subsidy (₹)</label>
-                <input id="subsidy" type="number" value="78000" />
-            </div>
+            <label>kW (shown only)</label>
+            <input id="kwInput" type="number">
 
-            <div class="input-group">
-                <label>EB Bill Increase</label>
-                <select id="increase">
-                    <option value="0">0 % / year (no increase)</option>
-                    <option value="3">3 % / year</option>
-                    <option value="3.5">3.5 % / year</option>
-                    <option value="4">4 % / year</option>
-                </select>
-            </div>
+            <label>Subsidy (₹)</label>
+            <input id="subsidyInput" type="number">
 
-            <div class="checkbox-row">
-                <input type="checkbox" id="showBreakeven" checked />
-                <label for="showBreakeven" style="margin:0;">Show Breakeven</label>
-            </div>
+            <label>EB Bill Increase</label>
+            <select id="increaseInput">
+                <option value="0">0% / year</option>
+                <option value="3">3% / year</option>
+                <option value="3.5">3.5% / year</option>
+                <option value="4">4% / year</option>
+            </select>
 
-            <br />
+            <label style="margin-top:15px;">
+                <input type="checkbox" id="breakevenToggle"> Show Breakeven on card & PNG
+            </label>
 
-            <button class="button" onclick="generate()">Generate</button>
-            <button class="button grey" onclick="downloadPNG()">Download PNG</button>
-
+            <button class="generate-btn" onclick="generate()">Generate</button>
         </div>
 
-        <!-- ---------------- REPORT CARD ---------------- -->
-        <div id="card">
-            <div class="top-right">Scaler Solar</div>
+        <!-- OUTPUT CARD -->
+        <div class="output-card" id="cardArea">
+            <h2>Solar ROI Report</h2>
+            <div id="preparedFor" style="color:#6b7280; margin-top:4px;"></div>
 
-            <h1>Solar ROI Report</h1>
-            <p id="prep" style="margin-top:-5px;">Prepared for —</p>
-
-            <div id="inputsDisplay"></div>
+            <p style="margin-top:20px; line-height:1.8;">
+                <b>Avg Bi-Monthly Bill:</b> <span id="outBill"></span><br>
+                <b>Solar Cost:</b> <span id="outCost"></span><br>
+                <b>Subsidy:</b> <span id="outSubsidy"></span><br>
+                <b>kW:</b> <span id="outKw"></span><br>
+                <b>Net Investment:</b> <span id="outNet"></span>
+            </p>
 
             <!-- FINANCIAL OVERVIEW -->
-            <div id="finBox" class="yellow-box" style="display:block;">
-                <div class="section-title">Financial Overview — <span id="custUpper"></span></div>
+            <div class="highlight-box">
+                <div class="section-header">Financial Overview</div>
 
-                <div class="net-amount" id="netAmountText"></div>
-                <div id="breakEvenLine"></div>
-                <div id="totalSav"></div>
-                <div id="roiText"></div>
+                <div class="fin-label">Net Invested Amount:</div>
+                <div class="fin-green" id="finNet"></div>
+
+                <div class="fin-label" style="margin-top:15px;">Total 25-Year Savings:</div>
+                <div class="fin-green" id="finSavings"></div>
+
+                <div class="fin-label" style="margin-top:15px;">ROI (%):</div>
+                <div class="fin-green" id="finROI"></div>
+
+                <div id="finBreak" style="margin-top:14px; font-size:15px; font-weight:600;"></div>
             </div>
 
-            <canvas id="chart" height="180"></canvas>
+            <canvas id="roiChart" style="margin-top:25px; height:330px;"></canvas>
 
-            <div class="grid-2">
-                <div class="info-box">
-                    <div class="info-title">Year 1 Savings</div>
-                    <div class="info-value" id="y1"></div>
+            <div class="stats-box">
+                <div class="stat">
+                    <div class="stat-title">Year 1 Savings</div>
+                    <div class="stat-value" id="year1"></div>
                 </div>
-
-                <div class="info-box">
-                    <div class="info-title">Breakeven Year</div>
-                    <div class="info-value" id="breakeven"></div>
-                </div>
-
-                <div class="info-box">
-                    <div class="info-title">Total 25-Year Savings</div>
-                    <div class="info-value" id="tot25"></div>
-                </div>
-
-                <div class="info-box">
-                    <div class="info-title">ROI (%)</div>
-                    <div class="info-value" id="roi"></div>
+                <div class="stat">
+                    <div class="stat-title">Breakeven Year</div>
+                    <div class="stat-value" id="breakevenVal"></div>
                 </div>
             </div>
 
-            <div class="green-note">
-                Factor in <b>0–4% annual EB bill increase</b> included in projections. Solar lifetime: 25 years.
-            </div>
-
+            <div class="footer-note" id="footerNote"></div>
         </div>
     </div>
 
     <script>
-        let chart;
+        let chartInstance = null;
 
-        // Format ₹
-        function rup(x) { return "₹" + x.toLocaleString("en-IN"); }
+        function formatINR(x) {
+            return "₹" + x.toLocaleString("en-IN");
+        }
 
-        // ---------------------------------------------------
         function generate() {
-            let name = document.getElementById("name").value;
-            let bill = Number(document.getElementById("bill").value);
-            let cost = Number(document.getElementById("cost").value);
-            let subsidy = Number(document.getElementById("subsidy").value);
-            let kw = document.getElementById("kw").value;
-            let inc = Number(document.getElementById("increase").value);
-            let showBE = document.getElementById("showBreakeven").checked;
+            const name = document.getElementById("nameInput").value.trim();
+            const bill = Number(document.getElementById("billInput").value);
+            const cost = Number(document.getElementById("costInput").value);
+            const subsidy = Number(document.getElementById("subsidyInput").value);
+            const kw = document.getElementById("kwInput").value;
+            const inc = Number(document.getElementById("increaseInput").value);
+            const showBreak = document.getElementById("breakevenToggle").checked;
 
-            let custUpper = name.toUpperCase();
+            const net = cost - subsidy;
+            const yearlySaving = bill * 6;
 
-            document.getElementById("prep").innerHTML = "Prepared for <b>" + name + "</b>";
-            document.getElementById("custUpper").innerHTML = custUpper;
-
-            // Display inputs
-            document.getElementById("inputsDisplay").innerHTML = `
-        <b>Avg Bi-Monthly Bill:</b> ${rup(bill)}<br>
-        <b>Solar Cost:</b> ${rup(cost)}<br>
-        <b>Subsidy:</b> ${rup(subsidy)}<br>
-        <b>kW:</b> ${kw}<br>
-        <b>Net Investment:</b> ${rup(cost - subsidy)}
-    `;
-
-            let net = cost - subsidy;
-            document.getElementById("netAmountText").innerHTML = `Net Invested Amount: ${rup(net)}`;
-
-            // -------------------- Savings Projection --------------------
             let savings = [];
-            let yearSavings = bill * 6;
-
-            let running = 0;
-            let breakevenYr = 0;
+            let cumulative = 0;
+            let breakeven = null;
 
             for (let y = 1; y <= 25; y++) {
-                savings.push(running + yearSavings);
-                running += yearSavings;
-                yearSavings *= (1 + inc / 100);
-
-                if (breakevenYr === 0 && running >= net) breakevenYr = y;
+                let adjusted = yearlySaving * Math.pow(1 + inc / 100, y - 1);
+                cumulative += adjusted;
+                savings.push(cumulative);
+                if (!breakeven && cumulative >= net) breakeven = y;
             }
 
-            let total25 = Math.round(running);
-            let roiValue = ((total25 - net) / net * 100).toFixed(1);
+            // OUTPUT TEXT
+            document.getElementById("preparedFor").innerHTML = "Prepared for <b>" + name.toUpperCase() + "</b>";
+            document.getElementById("outBill").innerHTML = formatINR(bill);
+            document.getElementById("outCost").innerHTML = formatINR(cost);
+            document.getElementById("outSubsidy").innerHTML = formatINR(subsidy);
+            document.getElementById("outKw").innerHTML = kw;
+            document.getElementById("outNet").innerHTML = formatINR(net);
 
-            // Display boxes
-            document.getElementById("y1").innerHTML = rup(bill * 6);
-            document.getElementById("breakeven").innerHTML = showBE ? breakevenYr : "—";
-            document.getElementById("tot25").innerHTML = rup(total25);
-            document.getElementById("roi").innerHTML = roiValue + "%";
+            document.getElementById("finNet").innerHTML = formatINR(net);
+            document.getElementById("finSavings").innerHTML = formatINR(Math.round(savings[24]));
+            document.getElementById("finROI").innerHTML = ((savings[24] / net) * 100).toFixed(1) + "%";
 
-            // Financial Overview (Top)
-            document.getElementById("totalSav").innerHTML =
-                `<b>Total 25-Year Savings:</b> ${rup(total25)}`;
+            document.getElementById("year1").innerHTML = formatINR(yearlySaving);
 
-            document.getElementById("roiText").innerHTML =
-                `<b>ROI:</b> ${roiValue}%`;
+            // Breakeven visibility
+            if (showBreak) {
+                document.getElementById("breakevenVal").innerHTML = breakeven;
+                document.getElementById("finBreak").innerHTML = "Estimated Breakeven Period: <b>" + breakeven + " years</b>";
+            } else {
+                document.getElementById("breakevenVal").innerHTML = "—";
+                document.getElementById("finBreak").innerHTML = "";
+            }
 
-            document.getElementById("breakEvenLine").innerHTML =
-                showBE ? `Estimated Breakeven Period: <b>${breakevenYr} years</b>` : "";
+            document.getElementById("footerNote").innerHTML =
+                `Factor in <b>${inc}% annual EB bill increase</b> included in projections. Solar lifetime: 25 years`;
 
-            // Show/hide breakeven text entirely
-            if (!showBE) document.getElementById("breakEvenLine").style.display = "none";
-            else document.getElementById("breakEvenLine").style.display = "block";
+            // DRAW CHART
+            const ctx = document.getElementById("roiChart");
+            if (chartInstance) chartInstance.destroy();
 
-            // -------------------- Chart --------------------
-            if (chart) chart.destroy();
-
-            const ctx = document.getElementById("chart").getContext("2d");
-
-            chart = new Chart(ctx, {
+            chartInstance = new Chart(ctx, {
                 type: "line",
                 data: {
-                    labels: Array.from({ length: 25 }, (_, i) => `Y${i + 1}`),
-                    datasets: [
-                        {
-                            label: "Savings",
-                            data: savings,
-                            borderColor: "#059669",
-                            backgroundColor: "rgba(5,150,105,0.15)",
-                            fill: true,
-                            borderWidth: 3,
-                            tension: 0.25,
-                        },
-                        ...(showBE
-                            ? [{
-                                label: "Breakeven",
-                                data: savings.map((v, i) =>
-                                    i + 1 === breakevenYr ? v : null
-                                ),
-                                borderColor: "#3b82f6",
-                                pointRadius: 8,
-                                borderWidth: 0,
-                                borderDash: [6, 6],
-                            }]
-                            : [])
+                    labels: [...Array(25)].map((_, i) => "Y" + (i + 1)),
+                    datasets: [{
+                        label: "Savings",
+                        data: savings,
+                        borderWidth: 3,
+                        borderColor: "#0c8a25",
+                        backgroundColor: "rgba(12,138,37,0.12)",
+                        fill: true
+                    },
+                    ...(showBreak ? [{
+                        label: "Breakeven",
+                        data: savings.map((_, i) => i + 1 === breakeven ? savings[i] : null),
+                        borderDash: [6, 6],
+                        borderColor: "#2563eb",
+                        borderWidth: 2,
+                        pointRadius: 6,
+                        pointBackgroundColor: "#2563eb"
+                    }] : [])
                     ]
                 },
                 options: {
-                    responsive: false,
+                    plugins: { legend: { display: false } },
                     scales: {
-                        y: { ticks: { callback: v => rup(v) } }
-                    },
-                    plugins: { legend: { display: false } }
+                        y: { ticks: { callback: v => "₹" + v.toLocaleString("en-IN") } }
+                    }
                 }
             });
         }
-
-        // ---------------------------------------------------
-        function downloadPNG() {
-            html2canvas(document.getElementById("card")).then(canvas => {
-                const link = document.createElement("a");
-                link.download = "solar-roi.png";
-                link.href = canvas.toDataURL();
-                link.click();
-            });
-        }
     </script>
+
 </body>
 
 </html>
