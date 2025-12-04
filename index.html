@@ -3,30 +3,42 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Solar ROI Generator — v13</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar ROI Report Generator – v12</title>
+
+    <!-- ChartJS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- html2canvas + jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: Inter, sans-serif;
             background: #f5f6f8;
             margin: 0;
-            padding: 30px;
+            padding: 15px;
         }
 
         .container {
             display: flex;
             gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
         .card {
             background: #fff;
             padding: 25px;
             border-radius: 14px;
-            width: 360px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            width: 360px;
+            flex-shrink: 0;
         }
 
         .output-card {
@@ -34,15 +46,8 @@
             background: #fff;
             padding: 35px;
             border-radius: 16px;
-            position: relative;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-        }
-
-        .logo {
-            position: absolute;
-            top: 18px;
-            right: 20px;
-            width: 120px;
+            min-width: 0;
         }
 
         h2 {
@@ -51,11 +56,17 @@
             font-weight: 800;
         }
 
+        h3 {
+            margin: 0 0 15px 0;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
         label {
-            margin-top: 12px;
-            display: block;
             font-size: 14px;
             font-weight: 600;
+            margin-top: 12px;
+            display: block;
         }
 
         input,
@@ -63,65 +74,64 @@
             width: 100%;
             padding: 10px;
             margin-top: 6px;
-            border: 1px solid #d9d9d9;
             border-radius: 8px;
+            border: 1px solid #d9d9d9;
+            font-size: 15px;
         }
 
         button {
             margin-top: 18px;
             padding: 12px 20px;
             border: none;
-            border-radius: 8px;
             font-size: 15px;
+            border-radius: 8px;
             cursor: pointer;
-            width: 100%;
+            font-weight: 600;
         }
 
         .generate-btn {
             background: #2563eb;
             color: white;
+            width: 100%;
         }
 
         .png-btn {
             background: #059669;
             color: white;
+            width: 100%;
+            margin-top: 10px;
         }
 
         .pdf-btn {
-            background: #d97706;
+            background: #7c3aed;
             color: white;
+            width: 100%;
             margin-top: 10px;
         }
 
         .highlight-box {
             background: #fff4cc;
-            padding: 22px;
-            border-radius: 14px;
-            margin-top: 25px;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
         }
 
         .fin-title {
             font-size: 22px;
             font-weight: 800;
-            margin-bottom: 8px;
-        }
-
-        .fin-subtitle {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 18px;
-        }
-
-        .fin-label {
-            font-size: 14px;
-            font-weight: 700;
-            margin-top: 14px;
+            margin-bottom: 10px;
         }
 
         .fin-green {
             color: #0c8a25;
-            font-size: 24px;
             font-weight: 800;
+            font-size: 26px;
+        }
+
+        .fin-label {
+            font-size: 15px;
+            font-weight: 700;
+            margin-top: 14px;
         }
 
         .stats-box {
@@ -150,17 +160,119 @@
         }
 
         .footer-note {
-            margin-top: 20px;
             background: #e8fae8;
             padding: 15px;
             border-radius: 10px;
+            margin-top: 20px;
             font-size: 14px;
         }
 
-        #roiChart {
+        .brand {
             margin-top: 25px;
-            height: 230px !important;
-            /* compact graph */
+            font-weight: 800;
+            font-size: 22px;
+            color: #2563eb;
+        }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .card {
+                width: 100%;
+            }
+
+            .output-card {
+                padding: 20px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            .fin-title {
+                font-size: 18px;
+            }
+
+            .fin-green {
+                font-size: 22px;
+            }
+
+            .stats-box {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .brand {
+                font-size: 18px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 8px;
+            }
+
+            .card {
+                padding: 18px;
+            }
+
+            .output-card {
+                padding: 15px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            h3 {
+                font-size: 18px;
+            }
+
+            .fin-title {
+                font-size: 16px;
+            }
+
+            .fin-green {
+                font-size: 20px;
+            }
+
+            .fin-label {
+                font-size: 14px;
+            }
+
+            .stat {
+                padding: 14px;
+            }
+
+            .stat-title {
+                font-size: 13px;
+            }
+
+            .stat-value {
+                font-size: 18px;
+            }
+
+            .highlight-box {
+                padding: 15px;
+            }
+
+            button {
+                padding: 10px 16px;
+                font-size: 14px;
+            }
+
+            input,
+            select {
+                font-size: 14px;
+            }
         }
     </style>
 </head>
@@ -168,8 +280,7 @@
 <body>
 
     <div class="container">
-
-        <!-- SIDEBAR -->
+        <!-- LEFT SIDEBAR -->
         <div class="card">
             <h3>Customer Inputs</h3>
 
@@ -182,11 +293,8 @@
             <label>Solar System Cost (₹)</label>
             <input id="costInput" type="number">
 
-            <label>kW (for display)</label>
+            <label>kW (shown only)</label>
             <input id="kwInput" type="number">
-
-            <label>Subsidy</label>
-            <input value="78000" disabled>
 
             <label>EB Bill Increase</label>
             <select id="increaseInput">
@@ -196,33 +304,35 @@
                 <option value="4">4%</option>
             </select>
 
-            <label><input type="checkbox" id="breakevenToggle"> Show Breakeven on card & PNG</label>
+            <label style="margin-top:15px;">
+                <input type="checkbox" id="breakevenToggle"> Show Breakeven on card & PNG
+            </label>
 
             <button class="generate-btn" onclick="generate()">Generate</button>
-            <button class="png-btn" onclick="downloadPNG()">Download PNG</button>
-            <button class="pdf-btn" onclick="downloadPDF()">Download PDF</button>
+            <button class="png-btn" onclick="savePNG()">Download PNG</button>
+            <button class="pdf-btn" onclick="savePDF()">Download PDF</button>
         </div>
 
         <!-- OUTPUT CARD -->
         <div class="output-card" id="cardArea">
 
-            <img src="https://github.com/sarveshanand94/solar-roi/blob/dab7e76e1598e27e30df8422e764c1e4769fe077/logo.jpeg"
-                class="logo" />
-
             <h2>Solar ROI Report</h2>
-            <div id="preparedFor" style="margin-top:4px; color:#6b7280;"></div>
+            <div id="preparedFor" style="color:#6b7280; margin-top:4px;"></div>
 
             <p style="margin-top:20px; line-height:1.8;">
                 <b>Avg Bi-Monthly Bill:</b> <span id="outBill"></span><br>
                 <b>Solar Cost:</b> <span id="outCost"></span><br>
-                <b>Subsidy:</b> <span>₹78,000</span><br>
+                <b>Subsidy:</b> <span id="outSubsidy">₹78,000</span><br>
                 <b>kW:</b> <span id="outKw"></span><br>
                 <b>Net Investment:</b> <span id="outNet"></span>
             </p>
 
+            <!-- FINANCIAL OVERVIEW -->
             <div class="highlight-box">
                 <div class="fin-title">Financial Overview</div>
-                <div class="fin-subtitle" id="finCust"></div>
+
+                <div class="fin-label">Customer:</div>
+                <div class="fin-green" id="finCustomer"></div>
 
                 <div class="fin-label">Net Invested Amount:</div>
                 <div class="fin-green" id="finNet"></div>
@@ -233,10 +343,10 @@
                 <div class="fin-label">ROI (%):</div>
                 <div class="fin-green" id="finROI"></div>
 
-                <div id="finBreak" style="font-size:15px; font-weight:600; margin-top:10px;"></div>
+                <div id="finBreak" style="margin-top:12px; font-size:15px; font-weight:600;"></div>
             </div>
 
-            <canvas id="roiChart"></canvas>
+            <canvas id="roiChart" style="margin-top:25px; height:260px !important;"></canvas>
 
             <div class="stats-box">
                 <div class="stat">
@@ -251,13 +361,17 @@
 
             <div class="footer-note" id="footerNote"></div>
 
+            <div class="brand">Scaler Solar</div>
+
         </div>
     </div>
 
     <script>
         let chartInstance = null;
 
-        function formatINR(x) { return "₹" + x.toLocaleString("en-IN"); }
+        function formatINR(x) {
+            return "₹" + x.toLocaleString("en-IN");
+        }
 
         function generate() {
             const name = document.getElementById("nameInput").value.trim();
@@ -282,13 +396,15 @@
                 if (!breakeven && cumulative >= net) breakeven = y;
             }
 
-            document.getElementById("preparedFor").innerHTML = "Prepared for <b>" + name.toUpperCase() + "</b>";
+            document.getElementById("preparedFor").innerHTML =
+                "Prepared for <b>" + name.toUpperCase() + "</b>";
+
+            document.getElementById("finCustomer").innerHTML = name.toUpperCase();
             document.getElementById("outBill").innerHTML = formatINR(bill);
             document.getElementById("outCost").innerHTML = formatINR(cost);
             document.getElementById("outKw").innerHTML = kw;
             document.getElementById("outNet").innerHTML = formatINR(net);
 
-            document.getElementById("finCust").innerHTML = "Customer: <b>" + name + "</b>";
             document.getElementById("finNet").innerHTML = formatINR(net);
             document.getElementById("finSavings").innerHTML = formatINR(Math.round(savings[24]));
             document.getElementById("finROI").innerHTML = ((savings[24] / net) * 100).toFixed(1) + "%";
@@ -297,7 +413,8 @@
 
             if (showBreak) {
                 document.getElementById("breakevenVal").innerHTML = breakeven;
-                document.getElementById("finBreak").innerHTML = "Breakeven in <b>" + breakeven + " years</b>";
+                document.getElementById("finBreak").innerHTML =
+                    "Estimated Breakeven: <b>" + breakeven + " years</b>";
             } else {
                 document.getElementById("breakevenVal").innerHTML = "—";
                 document.getElementById("finBreak").innerHTML = "";
@@ -307,12 +424,7 @@
                 `Includes <b>${inc}% annual EB bill increase</b>. Solar lifetime: 25 years`;
 
             const ctx = document.getElementById("roiChart");
-
             if (chartInstance) chartInstance.destroy();
-
-            const breakLine = showBreak ?
-                [...Array(25)].map((_, i) => (i + 1 === breakeven ? savings[i] : null)) :
-                [...Array(25)].map(() => null);
 
             chartInstance = new Chart(ctx, {
                 type: "line",
@@ -322,51 +434,60 @@
                         {
                             label: "Savings",
                             data: savings,
-                            borderColor: "#0c8a25",
                             borderWidth: 3,
+                            borderColor: "#0c8a25",
                             backgroundColor: "rgba(12,138,37,0.12)",
-                            fill: true
+                            fill: true,
+                            tension: 0.25
                         },
-                        {
+                        ...(showBreak ? [{
                             label: "Breakeven",
-                            data: breakLine,
+                            data: savings.map((v, i) => i + 1 === breakeven ? v : null),
                             borderColor: "#2563eb",
                             borderWidth: 2,
-                            borderDash: [6, 6],
                             pointRadius: 6,
+                            borderDash: [0, 0],
                             pointBackgroundColor: "#2563eb"
-                        }
+                        }] : [])
                     ]
                 },
                 options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        y: { ticks: { callback: v => "₹" + v.toLocaleString("en-IN") } },
+                        y: { ticks: { callback: v => "₹" + v.toLocaleString("en-IN") } }
                     }
                 }
             });
         }
 
-        function downloadPNG() {
-            const name = document.getElementById("nameInput").value || "customer";
-            html2canvas(document.getElementById("cardArea")).then(canvas => {
-                const link = document.createElement("a");
-                link.download = "roi_" + name + ".png";
-                link.href = canvas.toDataURL();
-                link.click();
-            });
+        function savePNG() {
+            const name = document.getElementById("nameInput").value.trim().toLowerCase() || "customer";
+            const fileName = `roi_${name}.png`;
+
+            html2canvas(document.getElementById("cardArea"), { scale: 3 })
+                .then(canvas => {
+                    let link = document.createElement("a");
+                    link.download = fileName;
+                    link.href = canvas.toDataURL();
+                    link.click();
+                });
         }
 
-        function downloadPDF() {
-            const name = document.getElementById("nameInput").value || "customer";
-            html2canvas(document.getElementById("cardArea")).then(canvas => {
-                const img = canvas.toDataURL("image/png");
-                const pdf = new jspdf.jsPDF("p", "mm", "a4");
-                const width = 190;
-                const height = canvas.height * (190 / canvas.width);
-                pdf.addImage(img, "PNG", 10, 10, width, height);
-                pdf.save("roi_" + name + ".pdf");
-            });
+        function savePDF() {
+            const name = document.getElementById("nameInput").value.trim().toLowerCase() || "customer";
+            const fileName = `roi_${name}.pdf`;
+
+            html2canvas(document.getElementById("cardArea"), { scale: 3 })
+                .then(canvas => {
+                    const imgData = canvas.toDataURL("image/png");
+                    const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
+                    const w = 190;
+                    const h = (canvas.height * 190) / canvas.width;
+                    pdf.addImage(imgData, "PNG", 10, 10, w, h);
+                    pdf.save(fileName);
+                });
         }
     </script>
 
