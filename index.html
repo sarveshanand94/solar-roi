@@ -19,7 +19,7 @@
         }
 
         body {
-            font-family: Inter, sans-serif;
+            font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #f5f6f8;
             margin: 0;
             padding: 15px;
@@ -109,6 +109,7 @@
             margin: 0;
             font-size: 32px;
             font-weight: 800;
+            letter-spacing: -0.5px;
         }
 
         h3 {
@@ -177,12 +178,14 @@
             font-size: 22px;
             font-weight: 800;
             margin-bottom: 10px;
+            letter-spacing: -0.3px;
         }
 
         .fin-green {
             color: #0c8a25;
             font-weight: 800;
             font-size: 26px;
+            letter-spacing: -0.5px;
         }
 
         .fin-label {
@@ -215,6 +218,7 @@
             font-weight: 900;
             display: block;
             margin-top: 6px;
+            letter-spacing: -0.5px;
         }
 
         .chart-container {
@@ -261,6 +265,7 @@
             font-size: 20px;
             font-weight: 800;
             margin-top: 5px;
+            letter-spacing: -0.3px;
         }
 
         .footer-note {
@@ -271,6 +276,7 @@
             font-size: 14px;
             position: relative;
             z-index: 2;
+            line-height: 1.6;
         }
 
         /* Footer with logo and website */
@@ -301,6 +307,7 @@
             font-size: 20px;
             color: #2563eb;
             margin-bottom: 5px;
+            letter-spacing: -0.3px;
         }
 
         .website-link {
@@ -313,6 +320,20 @@
 
         .website-link:hover {
             text-decoration: underline;
+        }
+
+        /* Info paragraph styling */
+        .info-paragraph {
+            margin-top: 20px;
+            line-height: 1.8;
+            position: relative;
+            z-index: 2;
+        }
+
+        .info-paragraph b {
+            font-weight: 700;
+            min-width: 140px;
+            display: inline-block;
         }
 
         /* Mobile Responsive Styles */
@@ -571,12 +592,12 @@
                         src="https://raw.githubusercontent.com/sarveshanand94/solar-roi/2ca3efe9ef99b4dbb9d0dc3723f39981a49d23a7/logo.jpeg"
                         alt="Company Logo">
                     <div>
-                        <a href="tel:6379533057" class="phone-number">📞 6379533057</a>
+                        <a href="tel:+916379533057" class="phone-number">📞 6379533057</a>
                     </div>
                 </div>
             </div>
 
-            <p style="margin-top:20px; line-height:1.8; position: relative; z-index: 2;">
+            <p class="info-paragraph">
                 <b>Avg Bi-Monthly Bill:</b> <span id="outBill"></span><br>
                 <b>Solar Cost:</b> <span id="outCost"></span><br>
                 <b>Subsidy:</b> <span id="outSubsidy">₹78,000</span><br>
@@ -613,7 +634,7 @@
 
             <!-- COMPACT CHART -->
             <div class="chart-container">
-                <div class="chart-title">Total Savings</div>
+                <div class="chart-title">Total Savings Over 25 Years</div>
                 <canvas id="roiChart"></canvas>
             </div>
 
@@ -802,16 +823,22 @@
             html2canvas(document.getElementById("cardArea"), {
                 scale: 2,
                 useCORS: true,
-                allowTaint: true,
-                logging: false
+                allowTaint: false,
+                logging: false,
+                backgroundColor: '#ffffff'
             }).then(canvas => {
                 // Hide watermark after capture
                 document.getElementById("watermark").style.display = "none";
 
+                // Use higher quality PNG compression
                 let link = document.createElement("a");
                 link.download = fileName;
-                link.href = canvas.toDataURL("image/png", 0.8);
+                link.href = canvas.toDataURL("image/png", 0.92);
                 link.click();
+            }).catch(err => {
+                document.getElementById("watermark").style.display = "none";
+                console.error("PNG generation failed:", err);
+                alert("Failed to generate PNG. Please try again.");
             });
         }
 
@@ -823,15 +850,19 @@
             document.getElementById("watermark").style.display = "block";
 
             html2canvas(document.getElementById("cardArea"), {
-                scale: 1.5,
+                scale: 1.2,
                 useCORS: true,
-                allowTaint: true,
-                logging: false
+                allowTaint: false,
+                logging: false,
+                backgroundColor: '#ffffff',
+                letterRendering: true,
+                imageTimeout: 0
             }).then(canvas => {
                 // Hide watermark after capture
                 document.getElementById("watermark").style.display = "none";
 
-                const imgData = canvas.toDataURL("image/jpeg", 0.7);
+                // Reduced JPEG quality for smaller file size
+                const imgData = canvas.toDataURL("image/jpeg", 0.6);
                 const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
 
                 const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -852,8 +883,12 @@
                 const x = (pdfWidth - width) / 2;
                 const y = 10;
 
-                pdf.addImage(imgData, "JPEG", x, y, width, height);
+                pdf.addImage(imgData, "JPEG", x, y, width, height, undefined, 'FAST');
                 pdf.save(fileName);
+            }).catch(err => {
+                document.getElementById("watermark").style.display = "none";
+                console.error("PDF generation failed:", err);
+                alert("Failed to generate PDF. Please try again.");
             });
         }
     </script>
