@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solar ROI Report Generator – v12</title>
+    <title>Solar ROI Report Generator – v2</title>
 
     <!-- ChartJS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -134,6 +134,24 @@
             margin-top: 14px;
         }
 
+        .chart-container {
+            position: relative;
+            height: 320px;
+            margin-top: 25px;
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #374151;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
         .stats-box {
             display: flex;
             gap: 20px;
@@ -205,6 +223,11 @@
                 font-size: 22px;
             }
 
+            .chart-container {
+                height: 280px;
+                padding: 15px;
+            }
+
             .stats-box {
                 flex-direction: column;
                 gap: 12px;
@@ -245,6 +268,15 @@
             }
 
             .fin-label {
+                font-size: 14px;
+            }
+
+            .chart-container {
+                height: 250px;
+                padding: 12px;
+            }
+
+            .chart-title {
                 font-size: 14px;
             }
 
@@ -346,7 +378,11 @@
                 <div id="finBreak" style="margin-top:12px; font-size:15px; font-weight:600;"></div>
             </div>
 
-            <canvas id="roiChart" style="margin-top:25px; height:260px !important;"></canvas>
+            <!-- COMPACT CHART -->
+            <div class="chart-container">
+                <div class="chart-title">25-Year Cumulative Savings</div>
+                <canvas id="roiChart"></canvas>
+            </div>
 
             <div class="stats-box">
                 <div class="stat">
@@ -371,6 +407,15 @@
 
         function formatINR(x) {
             return "₹" + x.toLocaleString("en-IN");
+        }
+
+        function formatINRShort(x) {
+            if (x >= 10000000) {
+                return "₹" + (x / 10000000).toFixed(1) + "Cr";
+            } else if (x >= 100000) {
+                return "₹" + (x / 100000).toFixed(1) + "L";
+            }
+            return "₹" + (x / 1000).toFixed(0) + "K";
         }
 
         function generate() {
@@ -429,34 +474,74 @@
             chartInstance = new Chart(ctx, {
                 type: "line",
                 data: {
-                    labels: [...Array(25)].map((_, i) => "Y" + (i + 1)),
+                    labels: [...Array(25)].map((_, i) => i + 1),
                     datasets: [
                         {
                             label: "Savings",
                             data: savings,
-                            borderWidth: 3,
+                            borderWidth: 2.5,
                             borderColor: "#0c8a25",
-                            backgroundColor: "rgba(12,138,37,0.12)",
+                            backgroundColor: "rgba(12,138,37,0.08)",
                             fill: true,
-                            tension: 0.25
+                            tension: 0.3,
+                            pointRadius: 0,
+                            pointHoverRadius: 5
                         },
                         ...(showBreak ? [{
                             label: "Breakeven",
                             data: savings.map((v, i) => i + 1 === breakeven ? v : null),
                             borderColor: "#2563eb",
-                            borderWidth: 2,
-                            pointRadius: 6,
-                            borderDash: [0, 0],
-                            pointBackgroundColor: "#2563eb"
+                            borderWidth: 0,
+                            pointRadius: 7,
+                            pointBackgroundColor: "#2563eb",
+                            pointBorderColor: "#fff",
+                            pointBorderWidth: 2
                         }] : [])
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return 'Savings: ' + formatINR(context.parsed.y);
+                                }
+                            }
+                        }
+                    },
                     scales: {
-                        y: { ticks: { callback: v => "₹" + v.toLocaleString("en-IN") } }
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Year',
+                                font: { size: 12, weight: '600' }
+                            },
+                            ticks: {
+                                maxTicksLimit: 13,
+                                font: { size: 11 }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Cumulative Savings',
+                                font: { size: 12, weight: '600' }
+                            },
+                            ticks: {
+                                callback: v => formatINRShort(v),
+                                font: { size: 11 },
+                                maxTicksLimit: 6
+                            },
+                            grid: {
+                                color: '#e5e7eb'
+                            }
+                        }
                     }
                 }
             });
