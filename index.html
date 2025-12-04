@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solar ROI Report Generator – v2</title>
+    <title>Solar ROI Report Generator – v3</title>
 
     <!-- ChartJS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -48,6 +48,35 @@
             border-radius: 16px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
             min-width: 0;
+            position: relative;
+        }
+
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .title-section {
+            flex: 1;
+        }
+
+        .logo-section {
+            text-align: right;
+        }
+
+        .logo-section img {
+            width: 120px;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .phone-number {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2563eb;
+            margin-top: 8px;
         }
 
         h2 {
@@ -134,6 +163,30 @@
             margin-top: 14px;
         }
 
+        .warning-box {
+            background: #fee;
+            border: 2px solid #dc2626;
+            padding: 18px;
+            border-radius: 12px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .warning-text {
+            color: #dc2626;
+            font-size: 17px;
+            font-weight: 700;
+            line-height: 1.6;
+        }
+
+        .warning-amount {
+            color: #991b1b;
+            font-size: 24px;
+            font-weight: 900;
+            display: block;
+            margin-top: 6px;
+        }
+
         .chart-container {
             position: relative;
             height: 320px;
@@ -211,6 +264,23 @@
                 padding: 20px;
             }
 
+            .header-section {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .logo-section {
+                text-align: left;
+            }
+
+            .logo-section img {
+                width: 100px;
+            }
+
+            .phone-number {
+                font-size: 15px;
+            }
+
             h2 {
                 font-size: 24px;
             }
@@ -221,6 +291,14 @@
 
             .fin-green {
                 font-size: 22px;
+            }
+
+            .warning-text {
+                font-size: 15px;
+            }
+
+            .warning-amount {
+                font-size: 20px;
             }
 
             .chart-container {
@@ -251,6 +329,14 @@
                 padding: 15px;
             }
 
+            .logo-section img {
+                width: 80px;
+            }
+
+            .phone-number {
+                font-size: 14px;
+            }
+
             h2 {
                 font-size: 20px;
             }
@@ -269,6 +355,18 @@
 
             .fin-label {
                 font-size: 14px;
+            }
+
+            .warning-box {
+                padding: 15px;
+            }
+
+            .warning-text {
+                font-size: 14px;
+            }
+
+            .warning-amount {
+                font-size: 18px;
             }
 
             .chart-container {
@@ -348,8 +446,17 @@
         <!-- OUTPUT CARD -->
         <div class="output-card" id="cardArea">
 
-            <h2>Solar ROI Report</h2>
-            <div id="preparedFor" style="color:#6b7280; margin-top:4px;"></div>
+            <div class="header-section">
+                <div class="title-section">
+                    <h2>Solar ROI Report</h2>
+                    <div id="preparedFor" style="color:#6b7280; margin-top:4px;"></div>
+                </div>
+                <div class="logo-section">
+                    <img src="https://raw.githubusercontent.com/sarveshanand94/solar-roi/2ca3efe9ef99b4dbb9d0dc3723f39981a49d23a7/logo.jpeg"
+                        alt="Company Logo">
+                    <div class="phone-number">📞 6379533057</div>
+                </div>
+            </div>
 
             <p style="margin-top:20px; line-height:1.8;">
                 <b>Avg Bi-Monthly Bill:</b> <span id="outBill"></span><br>
@@ -376,6 +483,15 @@
                 <div class="fin-green" id="finROI"></div>
 
                 <div id="finBreak" style="margin-top:12px; font-size:15px; font-weight:600;"></div>
+            </div>
+
+            <!-- WARNING BOX -->
+            <div class="warning-box">
+                <div class="warning-text">
+                    ⚠️ Without solar, you'll miss out on potential savings of
+                    <span class="warning-amount" id="warningSavings"></span>
+                    over the next 25 years!
+                </div>
             </div>
 
             <!-- COMPACT CHART -->
@@ -455,6 +571,9 @@
             document.getElementById("finROI").innerHTML = ((savings[24] / net) * 100).toFixed(1) + "%";
 
             document.getElementById("year1").innerHTML = formatINR(yearlySaving);
+
+            // Warning box with savings amount
+            document.getElementById("warningSavings").innerHTML = formatINR(Math.round(savings[24]));
 
             if (showBreak) {
                 document.getElementById("breakevenVal").innerHTML = breakeven;
