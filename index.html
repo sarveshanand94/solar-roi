@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solar ROI Report Generator – v3</title>
+    <title>Solar ROI Report Generator – v4</title>
 
     <!-- ChartJS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -77,6 +77,13 @@
             font-weight: 700;
             color: #2563eb;
             margin-top: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .phone-number:hover {
+            text-decoration: underline;
         }
 
         h2 {
@@ -452,9 +459,12 @@
                     <div id="preparedFor" style="color:#6b7280; margin-top:4px;"></div>
                 </div>
                 <div class="logo-section">
-                    <img src="https://raw.githubusercontent.com/sarveshanand94/solar-roi/2ca3efe9ef99b4dbb9d0dc3723f39981a49d23a7/logo.jpeg"
+                    <img id="companyLogo" crossorigin="anonymous"
+                        src="https://raw.githubusercontent.com/sarveshanand94/solar-roi/2ca3efe9ef99b4dbb9d0dc3723f39981a49d23a7/logo.jpeg"
                         alt="Company Logo">
-                    <div class="phone-number">📞 6379533057</div>
+                    <div>
+                        <a href="tel:6379533057" class="phone-number">📞 6379533057</a>
+                    </div>
                 </div>
             </div>
 
@@ -670,28 +680,53 @@
             const name = document.getElementById("nameInput").value.trim().toLowerCase() || "customer";
             const fileName = `roi_${name}.png`;
 
-            html2canvas(document.getElementById("cardArea"), { scale: 3 })
-                .then(canvas => {
-                    let link = document.createElement("a");
-                    link.download = fileName;
-                    link.href = canvas.toDataURL();
-                    link.click();
-                });
+            html2canvas(document.getElementById("cardArea"), {
+                scale: 2,
+                useCORS: true,
+                allowTaint: true,
+                logging: false
+            }).then(canvas => {
+                let link = document.createElement("a");
+                link.download = fileName;
+                link.href = canvas.toDataURL("image/png", 0.8);
+                link.click();
+            });
         }
 
         function savePDF() {
             const name = document.getElementById("nameInput").value.trim().toLowerCase() || "customer";
             const fileName = `roi_${name}.pdf`;
 
-            html2canvas(document.getElementById("cardArea"), { scale: 3 })
-                .then(canvas => {
-                    const imgData = canvas.toDataURL("image/png");
-                    const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
-                    const w = 190;
-                    const h = (canvas.height * 190) / canvas.width;
-                    pdf.addImage(imgData, "PNG", 10, 10, w, h);
-                    pdf.save(fileName);
-                });
+            html2canvas(document.getElementById("cardArea"), {
+                scale: 1.5,
+                useCORS: true,
+                allowTaint: true,
+                logging: false
+            }).then(canvas => {
+                const imgData = canvas.toDataURL("image/jpeg", 0.7);
+                const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
+
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+
+                const canvasWidth = canvas.width;
+                const canvasHeight = canvas.height;
+                const ratio = canvasWidth / canvasHeight;
+
+                let width = pdfWidth - 20;
+                let height = width / ratio;
+
+                if (height > pdfHeight - 20) {
+                    height = pdfHeight - 20;
+                    width = height * ratio;
+                }
+
+                const x = (pdfWidth - width) / 2;
+                const y = 10;
+
+                pdf.addImage(imgData, "JPEG", x, y, width, height);
+                pdf.save(fileName);
+            });
         }
     </script>
 
