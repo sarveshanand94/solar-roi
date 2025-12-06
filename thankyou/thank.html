@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar Thank You Note Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .form-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .file-input-group {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px dashed #ddd;
+        }
+
+        .file-input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .file-input-group input[type="file"] {
+            padding: 10px;
+            background: white;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .thank-you-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+            aspect-ratio: 9/16;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .thank-you-card::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: -50px;
+            width: 200px;
+            height: 200px;
+            background: rgba(195, 155, 211, 0.1);
+            border-radius: 50%;
+        }
+
+        .thank-you-card::after {
+            content: '';
+            position: absolute;
+            bottom: -80px;
+            right: -80px;
+            width: 250px;
+            height: 250px;
+            background: rgba(195, 155, 211, 0.08);
+            border-radius: 50%;
+        }
+
+        .card-content {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            position: relative;
+            z-index: 1;
+            height: 100%;
+        }
+
+        .left-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            flex-shrink: 0;
+        }
+
+        .left-section img {
+            max-width: 280px;
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .for-trust {
+            font-size: 28px;
+            color: #333;
+            font-weight: 400;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .right-section {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .logo {
+            text-align: left;
+            margin-top: 20px;
+            margin-bottom: 0;
+        }
+
+        .logo img {
+            max-width: 200px;
+            width: 80%;
+            height: auto;
+        }
+
+        .subtitle {
+            color: #555;
+            font-size: 20px;
+            margin-top: 10px;
+        }
+
+        .greeting {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a3a52;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .message {
+            font-size: 16px;
+            line-height: 1.5;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .highlight {
+            font-weight: 700;
+            color: #1a3a52;
+        }
+
+        .signature {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .signature-name {
+            font-weight: 600;
+            color: #1a3a52;
+        }
+
+        .footer {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #ddd;
+            font-size: 14px;
+            color: #1a3a52;
+            font-weight: 600;
+        }
+
+        .footer-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .decorative-dots {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #c49b6b;
+            border-radius: 50%;
+            opacity: 0.6;
+        }
+
+        .dot1 {
+            top: 30px;
+            left: 50px;
+        }
+
+        .dot2 {
+            top: 100px;
+            left: 30px;
+        }
+
+        .dot3 {
+            top: 60px;
+            right: 80px;
+        }
+
+        .dot4 {
+            bottom: 80px;
+            left: 100px;
+        }
+
+        .dot5 {
+            bottom: 120px;
+            right: 50px;
+        }
+
+        @media (max-width: 768px) {
+            .thank-you-card {
+                padding: 30px 20px;
+            }
+
+            .card-content {
+                gap: 20px;
+            }
+
+            .for-trust {
+                font-size: 22px;
+            }
+
+            .left-section img {
+                max-width: 200px;
+            }
+
+            .greeting {
+                font-size: 24px;
+            }
+
+            .message {
+                font-size: 14px;
+            }
+
+            .signature {
+                font-size: 14px;
+            }
+
+            .footer {
+                font-size: 12px;
+            }
+
+            .logo img {
+                max-width: 160px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .thank-you-card {
+                padding: 20px 15px;
+            }
+
+            .for-trust {
+                font-size: 18px;
+            }
+
+            .left-section img {
+                max-width: 180px;
+            }
+
+            .greeting {
+                font-size: 20px;
+            }
+
+            .message {
+                font-size: 13px;
+            }
+
+            .logo img {
+                max-width: 140px;
+            }
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #c49b6b 0%, #a67c52 100%);
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="form-section">
+            <h1>🌞 Solar Thank You Note Generator</h1>
+            <div class="form-group">
+                <label for="customerName">Customer Name:</label>
+                <input type="text" id="customerName" placeholder="Mr. P Jayakumar" value="Mr. P Jayakumar">
+            </div>
+            <div class="form-group">
+                <label for="signerName">Signer Name:</label>
+                <select id="signerName">
+                    <option value="Sarvesh Anand CV">Sarvesh Anand CV</option>
+                    <option value="Pavan V Jain">Pavan V Jain</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="signerTitle">Signer Title:</label>
+                <input type="text" id="signerTitle" placeholder="Managing Director" value="Managing Director">
+            </div>
+            <button onclick="generateCard()">Generate Thank You Note</button>
+        </div>
+
+        <div id="thankYouCard" class="thank-you-card">
+            <div class="decorative-dots dot1"></div>
+            <div class="decorative-dots dot2"></div>
+            <div class="decorative-dots dot3"></div>
+            <div class="decorative-dots dot4"></div>
+            <div class="decorative-dots dot5"></div>
+
+            <div class="card-content">
+                <div class="left-section">
+                    <img id="thankYouImage"
+                        src="https://cdn.jsdelivr.net/gh/sarveshanand94/solar-roi@main/thank-Photoroom.png"
+                        alt="Thank You" style="max-width: 100%; height: auto;" crossorigin="anonymous">
+                    <div class="for-trust">For Your Trust!</div>
+                </div>
+
+                <div class="right-section">
+                    <div class="greeting">Dear <span id="displayName">Mr. P Jayakumar</span></div>
+
+                    <div class="message">
+                        We're so glad that you trusted us to bring solar power to your home.<br>
+                        It means a lot to us ☺️.
+                    </div>
+
+                    <div class="message">
+                        You're now part of our growing solar family..!! Welcome to a brighter and greener future! 🌳
+                    </div>
+
+                    <div class="message">
+                        A Big heartfelt Thank you from all of us at<br>
+                        <span class="highlight">Scaler Solar Solutions</span> 💛
+                    </div>
+
+                    <div class="signature">
+                        Warm Regards From,<br>
+                        <span class="signature-name" id="displaySigner">Sarvesh Anand CV</span><br>
+                        <span id="displayTitle">Managing Director</span>
+                    </div>
+
+                    <div class="logo">
+                        <img id="logoImage"
+                            src="https://cdn.jsdelivr.net/gh/sarveshanand94/solar-roi@main/slogo-Photoroom.png"
+                            alt="Scaler Energy Solutions" crossorigin="anonymous">
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer">
+                <div class="footer-item">
+                    <span>🌐</span>
+                    <span>www.scalerenergy.in</span>
+                </div>
+                <div class="footer-item">
+                    <span>📞</span>
+                    <span>6379 533 057</span>
+                </div>
+                <div class="footer-item">
+                    <span>✉️</span>
+                    <span>sales@scalerenergy.in</span>
+                </div>
+            </div>
+        </div>
+
+        <button class="download-btn" onclick="downloadCard()">Download as Image</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        function generateCard() {
+            const customerName = document.getElementById('customerName').value || 'Valued Customer';
+            const signerName = document.getElementById('signerName').value || 'Sarvesh Anand';
+            const signerTitle = document.getElementById('signerTitle').value || 'Managing Director';
+
+            document.getElementById('displayName').textContent = customerName;
+            document.getElementById('displaySigner').textContent = signerName;
+            document.getElementById('displayTitle').textContent = signerTitle;
+        }
+
+        function downloadCard() {
+            const card = document.getElementById('thankYouCard');
+
+            html2canvas(card, {
+                scale: 2,
+                backgroundColor: '#f5f7fa',
+                logging: false,
+                useCORS: true,
+                allowTaint: false
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'solar-thank-you-note.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }).catch(error => {
+                console.error('Error generating image:', error);
+                alert('There was an error downloading the image. Please try again.');
+            });
+        }
+
+        // Generate initial card
+        generateCard();
+    </script>
+</body>
+
+</html>
